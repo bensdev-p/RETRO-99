@@ -12,11 +12,13 @@ import pygame
 from retro99.config import Config
 from retro99.input.actions import InputEvent
 from retro99.input.keyboard import translate
+from retro99.library.db import LibraryDB
 from retro99.render.crt import CrtEffect
 from retro99.render.display import Display
 from retro99.render.font import BitmapFont, load_font
 from retro99.render.textgrid import COLS, ROWS, GridRenderer, TextGrid
 from retro99.screens.base import AppContext, Screen, ScreenStack
+from retro99.tasks import Worker
 
 log = logging.getLogger(__name__)
 
@@ -29,6 +31,7 @@ class App:
         config: Config,
         *,
         font: BitmapFont | None = None,
+        db: LibraryDB | None = None,
         clock: Callable[[], datetime] = datetime.now,
     ) -> None:
         self.config = config
@@ -43,7 +46,17 @@ class App:
             crt=self.crt,
         )
         self.stack = ScreenStack()
-        self.ctx = AppContext(config=config, stack=self.stack, crt=self.crt, clock=clock)
+        self.worker = Worker()
+        self.db = db if db is not None else LibraryDB(config.paths.db)
+        self.ctx = AppContext(
+            config=config,
+            stack=self.stack,
+            db=self.db,
+            worker=self.worker,
+            crt=self.crt,
+            cell_size=(self.font.width, self.font.height),
+            clock=clock,
+        )
         self.stack.bind(self.ctx)
 
     def dispatch(self, ev: InputEvent) -> None:
@@ -53,10 +66,21 @@ class App:
 
     def render(self, now: float) -> pygame.Surface:
         self.grid.clear()
-        for screen in self.stack.visible():
+        visible = self.stack.visible()
+        for screen in visible:
             screen.draw(self.grid, self.ctx)
         cursor_on = int(now / CURSOR_BLINK_SECONDS) % 2 == 0
-        return self.renderer.render(self.grid, cursor_on)
+        frame = self.renderer.render(self.grid, cursor_on)
+        # Only the topmost screen's overlays are drawn, so a dialog hides the art below it.
+        if visible:
+            for surface, x, y in visible[-1].overlays(self.ctx):
+                rect = frame.blit(surface, (x, y))
+                self.renderer.invalidate_pixels(rect)
+        return frame
+
+    def close(self) -> None:
+        self.worker.shutdown()
+        self.db.close()
 
     def _pump_events(self) -> None:
         for event in pygame.event.get():
@@ -82,6 +106,7 @@ class App:
         try:
             while not self.stack.quit_requested and len(self.stack):
                 self._pump_events()
+                self.worker.poll()
                 dt = clock.tick(self.config.display.fps) / 1000.0
                 top = self.stack.top
                 if top is None:
@@ -93,5 +118,6 @@ class App:
                     break
         finally:
             self.display.close()
+            self.close()
             pygame.quit()
         return 0

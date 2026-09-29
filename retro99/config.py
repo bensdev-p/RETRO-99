@@ -14,6 +14,8 @@ from dataclasses import dataclass, field
 from pathlib import Path
 from typing import Any
 
+from retro99.library.systems import DEFAULT_SYSTEMS, System, load_systems
+
 PROJECT_ROOT = Path(__file__).resolve().parent.parent
 
 DEFAULT_FONTS = [
@@ -41,10 +43,32 @@ class UiConfig:
 
 
 @dataclass
+class LibraryConfig:
+    scan_on_start: bool = True
+
+
+# Folders under data_root; each can be overridden in [paths].
+DATA_DIRS = {
+    "games_dir": "games",
+    "bios_dir": "bios",
+    "media_dir": "media",
+    "saves_dir": "saves",
+    "inbox_dir": "inbox",
+    "db": "library.db",
+}
+
+
+@dataclass
 class PathsConfig:
-    data_root: Path = Path("data")
-    log_dir: Path = Path("logs")
-    fonts: list[Path] = field(default_factory=lambda: [Path(p) for p in DEFAULT_FONTS])
+    data_root: Path = PROJECT_ROOT / "data"
+    log_dir: Path = PROJECT_ROOT / "logs"
+    fonts: list[Path] = field(default_factory=lambda: [resolve_path(p) for p in DEFAULT_FONTS])
+    games_dir: Path = PROJECT_ROOT / "data" / "games"
+    bios_dir: Path = PROJECT_ROOT / "data" / "bios"
+    media_dir: Path = PROJECT_ROOT / "data" / "media"
+    saves_dir: Path = PROJECT_ROOT / "data" / "saves"
+    inbox_dir: Path = PROJECT_ROOT / "data" / "inbox"
+    db: Path = PROJECT_ROOT / "data" / "library.db"
 
 
 @dataclass
@@ -54,6 +78,8 @@ class Config:
     display: DisplayConfig = field(default_factory=DisplayConfig)
     ui: UiConfig = field(default_factory=UiConfig)
     paths: PathsConfig = field(default_factory=PathsConfig)
+    library: LibraryConfig = field(default_factory=LibraryConfig)
+    systems: dict[str, System] = field(default_factory=lambda: dict(DEFAULT_SYSTEMS))
     raw: dict[str, Any] = field(default_factory=dict)
 
 
@@ -91,12 +117,30 @@ def parse_config(data: dict[str, Any], *, dev: bool, source: Path | None = None)
     cfg.paths.log_dir = resolve_path(paths.get("log_dir", cfg.paths.log_dir))
     fonts = paths.get("fonts", DEFAULT_FONTS)
     cfg.paths.fonts = [resolve_path(p) for p in fonts]
+    for name, default in DATA_DIRS.items():
+        value = paths.get(name)
+        setattr(
+            cfg.paths,
+            name,
+            resolve_path(value) if value else cfg.paths.data_root / default,
+        )
+
+    library = data.get("library", {})
+    cfg.library.scan_on_start = bool(library.get("scan_on_start", cfg.library.scan_on_start))
+    cfg.systems = load_systems(data.get("systems"))
 
     if dev:
         # Development always runs windowed and logs into the checkout.
         cfg.display.fullscreen = False
         cfg.paths.log_dir = PROJECT_ROOT / "logs"
     return cfg
+
+
+def set_data_root(cfg: Config, root: Path) -> None:
+    """Point every data folder at ``root`` (the ``--data-root`` flag)."""
+    cfg.paths.data_root = resolve_path(root, Path.cwd())
+    for name, default in DATA_DIRS.items():
+        setattr(cfg.paths, name, cfg.paths.data_root / default)
 
 
 def load_config(path: Path | None = None, *, dev: bool = False) -> Config:

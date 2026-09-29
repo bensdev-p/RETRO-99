@@ -1,0 +1,13 @@
+id = "half-life"
+title = "Half-Life"
+year = 1998
+publisher = "Valve"
+system = "native"
+launcher = "native"
+genre = "FPS"
+players = 1
+
+[launch]
+program = "xash3d"
+args = ["-game", "valve"]
+cwd = "{game_dir}"

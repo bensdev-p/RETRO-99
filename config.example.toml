@@ -10,8 +10,18 @@ fps = 30
 crt = false            # scanline post-process
 crt_strength = 96      # 0-255
 
+[library]
+scan_on_start = true   # rescan the games folders in the background at startup
+
 [paths]
 data_root = "/srv/retro99"
+# These default to folders inside data_root; set any of them to move it.
+# games_dir = "/srv/retro99/games"
+# bios_dir  = "/srv/retro99/bios"
+# media_dir = "/srv/retro99/media"
+# saves_dir = "/srv/retro99/saves"
+# inbox_dir = "/srv/retro99/inbox"
+# db        = "/srv/retro99/library.db"
 log_dir = "/var/log/retro99"   # dev mode always uses ./logs
 # Tried in order; the first one that loads wins.
 fonts = [
@@ -20,3 +30,27 @@ fonts = [
   "/usr/share/consolefonts/default8x16.psf.gz",   # apt install console-data
   "/usr/share/consolefonts/Uni2-VGA16.psf.gz",    # Raspberry Pi OS default
 ]
+
+# Systems. Defaults ship for DOS, Windows, native ports, NES, SNES, Genesis,
+# Master System, Game Boy/Color/Advance, N64, PlayStation, Sega CD, Saturn,
+# Dreamcast, PSP, TurboGrafx-16 and arcade (FBNeo). A [systems.<key>] table
+# overrides fields of a default system or adds a new one; ROMs for a system go
+# in <games_dir>/roms/<key>/.
+#
+# [systems.snes]
+# name = "Super Nintendo"
+# extensions = [".sfc", ".smc", ".zip"]
+# launcher = "emulator"
+# program = "retroarch"
+# core = "snes9x"
+# bios = []
+#
+# [systems.psx]
+# core = "swanstation"             # override one field of a default
+#
+# [systems.msx]                    # add a new system
+# name = "MSX"
+# short = "MSX"
+# extensions = [".rom", ".mx1", ".mx2"]
+# program = "retroarch"
+# core = "bluemsx"

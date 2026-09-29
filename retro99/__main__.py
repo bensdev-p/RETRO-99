@@ -8,7 +8,7 @@ import os
 import sys
 from pathlib import Path
 
-from retro99.config import Config, load_config
+from retro99.config import Config, load_config, set_data_root
 
 
 def parse_args(argv: list[str] | None) -> argparse.Namespace:
@@ -19,6 +19,7 @@ def parse_args(argv: list[str] | None) -> argparse.Namespace:
         action="store_true",
         help="development mode: windowed, logs to ./logs (same as RETRO99_DEV=1)",
     )
+    p.add_argument("--data-root", type=Path, help="use this folder for games, media and the DB")
     p.add_argument("--scale", type=int, help="window scale factor in windowed mode")
     p.add_argument("--crt", action="store_true", help="enable CRT scanlines")
     p.add_argument(
@@ -47,6 +48,8 @@ def main(argv: list[str] | None = None) -> int:
     args = parse_args(argv)
     dev = args.windowed or os.environ.get("RETRO99_DEV") == "1"
     config = load_config(args.config, dev=dev)
+    if args.data_root:
+        set_data_root(config, args.data_root)
     if args.scale:
         config.display.window_scale = args.scale
     if args.crt:
@@ -60,9 +63,9 @@ def main(argv: list[str] | None = None) -> int:
 
     # Imported late so --help works without initializing pygame.
     from retro99.app import App
-    from retro99.screens.demo import DemoScreen
+    from retro99.screens.library import LibraryScreen
 
-    return App(config).run(DemoScreen(), max_frames=args.frames)
+    return App(config).run(LibraryScreen(), max_frames=args.frames)
 
 
 if __name__ == "__main__":

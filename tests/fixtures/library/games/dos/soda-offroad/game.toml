@@ -1,0 +1,9 @@
+id = "soda-offroad"
+title = "SODA Off-Road Racing"
+system = "dos"
+launcher = "emulator"
+
+[launch]
+program = "dosbox-staging"
+args = ["-conf", "{game_dir}/dosbox.conf"]
+cwd = "{game_dir}"

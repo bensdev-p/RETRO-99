@@ -1,0 +1,18 @@
+id = "duke3d"
+title = "Duke Nukem 3D"
+year = 1996
+publisher = "3D Realms"
+system = "dos"             # dos | native | windows | nes | snes | genesis | psx | ...
+launcher = "native"        # emulator | native | wine
+genre = "FPS"
+players = "1"
+favorite = false
+notes = ""
+
+[launch]
+program = "eduke32"        # key into config.toml [programs]
+args = ["-g", "{game_dir}/DUKE3D.GRP"]
+cwd = "{game_dir}"
+
+[input]
+exit_combo = "default"     # or a custom combo

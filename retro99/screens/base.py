@@ -11,6 +11,8 @@ from dataclasses import dataclass, field
 from datetime import datetime
 from typing import TYPE_CHECKING
 
+import pygame
+
 from retro99.input.actions import InputEvent
 from retro99.render.crt import CrtEffect
 from retro99.render.textgrid import TextGrid
@@ -18,6 +20,11 @@ from retro99.render.widgets import DEFAULT_THEME, Theme
 
 if TYPE_CHECKING:
     from retro99.config import Config
+    from retro99.library.db import LibraryDB
+    from retro99.tasks import Worker
+
+# A surface to draw over the text grid, at a position in logical pixels.
+Overlay = tuple[pygame.Surface, int, int]
 
 
 class Screen:
@@ -34,6 +41,10 @@ class Screen:
 
     def draw(self, grid: TextGrid, ctx: AppContext) -> None:
         raise NotImplementedError
+
+    def overlays(self, ctx: AppContext) -> list[Overlay]:
+        """Pixel images (e.g. box art) drawn over the grid after ``draw``."""
+        return []
 
 
 class ScreenStack:
@@ -90,6 +101,9 @@ class AppContext:
 
     config: Config
     stack: ScreenStack
+    db: LibraryDB | None = None
+    worker: Worker | None = None
     crt: CrtEffect = field(default_factory=CrtEffect)
+    cell_size: tuple[int, int] = (8, 16)
     theme: Theme = DEFAULT_THEME
     clock: Callable[[], datetime] = datetime.now

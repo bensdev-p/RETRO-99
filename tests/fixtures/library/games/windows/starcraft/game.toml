@@ -1,0 +1,19 @@
+id = "starcraft"
+title = "StarCraft"
+year = 1998
+publisher = "Blizzard"
+system = "windows"
+launcher = "wine"
+genre = "RTS"
+players = "1-8"
+favorite = true
+
+[launch]
+program = "wine"
+args = ["{game_dir}/drive_c/StarCraft/StarCraft.exe"]
+cwd = "{game_dir}/drive_c/StarCraft"
+
+[launch.env]
+WINEPREFIX = "{game_dir}"
+WINEDEBUG = "-all"
+BOX64_DYNAREC_BIGBLOCK = "0"

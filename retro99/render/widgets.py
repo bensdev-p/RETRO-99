@@ -238,18 +238,33 @@ def draw_hotkey_label(
 # --------------------------------------------------------------------------- #
 
 
+@dataclass(frozen=True)
+class ListItem:
+    """A list row: ``text`` plus optional colored badges before and after it."""
+
+    text: str
+    prefix: str = ""  # e.g. "[!]"
+    prefix_fg: int | None = None
+    suffix: str = ""  # right-aligned, e.g. "1996 ♥"
+    suffix_fg: int | None = None
+
+
+def _as_item(item: str | ListItem) -> ListItem:
+    return item if isinstance(item, ListItem) else ListItem(item)
+
+
 class ListBox:
     """A scrolling, selectable list with letter-jump."""
 
     def __init__(
         self,
-        items: Sequence[str] = (),
+        items: Sequence[str | ListItem] = (),
         *,
         on_change: Callable[[int], None] | None = None,
         on_activate: Callable[[int], None] | None = None,
         empty_text: str = "(empty)",
     ) -> None:
-        self.items: list[str] = list(items)
+        self.items: list[ListItem] = [_as_item(i) for i in items]
         self.selected = 0
         self.top = 0
         self.page = 10  # updated from the real height on every draw
@@ -257,8 +272,8 @@ class ListBox:
         self.on_activate = on_activate
         self.empty_text = empty_text
 
-    def set_items(self, items: Sequence[str], selected: int = 0) -> None:
-        self.items = list(items)
+    def set_items(self, items: Sequence[str | ListItem], selected: int = 0) -> None:
+        self.items = [_as_item(i) for i in items]
         self.top = 0
         self.selected = 0
         self.select(selected, notify=False)
@@ -287,7 +302,7 @@ class ListBox:
         n = len(self.items)
         for step in range(1, n + 1):
             i = (self.selected + step) % n
-            if self.items[i].lstrip().lower().startswith(ch):
+            if self.items[i].text.lstrip().lower().startswith(ch):
                 self.select(i)
                 return True
         return False
@@ -333,16 +348,24 @@ class ListBox:
             i = self.top + row
             if i >= len(self.items):
                 break
+            item = self.items[i]
             is_sel = i == self.selected
-            prefix = marker if is_sel else " "
-            line = fit(prefix + self.items[i], text_w)
             if is_sel and focused:
                 fg, bg = theme.select_fg, theme.select_bg
             elif is_sel:
                 fg, bg = theme.select_unfocused_fg, theme.pane_bg
             else:
                 fg, bg = theme.pane_fg, theme.pane_bg
-            grid.write(rect.x, rect.y + row, line, fg, bg)
+            y = rect.y + row
+            grid.write(rect.x, y, fit(marker if is_sel else " ", text_w), fg, bg)
+            x = rect.x + 1
+            if item.prefix:
+                x += grid.write(x, y, item.prefix, item.prefix_fg or fg, bg) + 1
+            suffix_w = len(item.suffix) + 1 if item.suffix else 0
+            grid.write(x, y, fit(item.text, rect.x + text_w - x - suffix_w), fg, bg)
+            if item.suffix:
+                sx = rect.x + text_w - len(item.suffix)
+                grid.write(sx, y, item.suffix, item.suffix_fg or fg, bg)
         if overflow:
             draw_scrollbar(
                 grid,

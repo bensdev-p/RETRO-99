@@ -137,6 +137,16 @@ class GridRenderer:
         """Force a full redraw on the next frame (e.g. after the display is re-created)."""
         self._prev = [None] * (self.cols * self.rows)
 
+    def invalidate_pixels(self, rect: pygame.Rect) -> None:
+        """Redraw the cells under a pixel rectangle next frame (after drawing over them)."""
+        w, h = self.font.width, self.font.height
+        x0, y0 = max(rect.left // w, 0), max(rect.top // h, 0)
+        x1 = min((rect.right - 1) // w, self.cols - 1)
+        y1 = min((rect.bottom - 1) // h, self.rows - 1)
+        for cy in range(y0, y1 + 1):
+            for cx in range(x0, x1 + 1):
+                self._prev[cy * self.cols + cx] = None
+
     def _cell_surface(self, ch: str, fg: int, bg: int) -> pygame.Surface:
         key = (ch, fg, bg)
         surf = self._cache.get(key)

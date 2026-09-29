@@ -1,0 +1,8 @@
+id = "Bad Fields!"
+system = "windows"
+launcher = "dosbox"
+year = "1995"
+
+[launch]
+program = "wine"
+args = ["{game_dir}/{exe_name}"]
