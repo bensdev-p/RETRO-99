@@ -1,0 +1,21 @@
+# RETRO-99 configuration. install.sh copies this to /etc/retro99/config.toml.
+# Relative paths resolve against the install directory (/opt/retro99).
+
+[display]
+fullscreen = true      # forced off in dev mode (RETRO99_DEV=1 or --windowed)
+window_scale = 2       # windowed mode only
+fps = 30
+
+[ui]
+crt = false            # scanline post-process
+crt_strength = 96      # 0-255
+
+[paths]
+data_root = "/srv/retro99"
+log_dir = "/var/log/retro99"   # dev mode always uses ./logs
+# Tried in order; the first one that loads wins.
+fonts = [
+  "assets/fonts/Px437_IBM_VGA_8x16.ttf",
+  "/usr/share/consolefonts/default8x16.psf.gz",   # apt install console-data
+  "/usr/share/consolefonts/Uni2-VGA16.psf.gz",    # Raspberry Pi OS default
+]

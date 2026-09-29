@@ -1,0 +1,31 @@
+[build-system]
+requires = ["setuptools>=68"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "retro99"
+version = "0.1.0"
+description = "DOS-style game launcher for a Raspberry Pi 5 in a TI-99/4A case"
+readme = "README.md"
+requires-python = ">=3.11"
+dependencies = ["pygame-ce>=2.4"]
+
+[project.optional-dependencies]
+dev = ["pytest>=8", "ruff>=0.5"]
+
+[project.scripts]
+retro99 = "retro99.__main__:main"
+
+[tool.setuptools.packages.find]
+include = ["retro99*"]
+
+[tool.ruff]
+line-length = 100
+target-version = "py311"
+
+[tool.ruff.lint]
+select = ["E", "F", "W", "I", "UP", "B", "RUF"]
+ignore = ["RUF001"]  # box-drawing and CP437 glyphs are intentional
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
