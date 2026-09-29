@@ -7,7 +7,7 @@ def test_defaults_are_relative_to_project_root():
     cfg = parse_config({}, dev=False)
     assert cfg.display.fullscreen is True
     assert cfg.paths.data_root == PROJECT_ROOT / "data"
-    assert cfg.paths.fonts[0] == PROJECT_ROOT / "assets/fonts/Px437_IBM_VGA_8x16.ttf"
+    assert cfg.paths.fonts[0] == PROJECT_ROOT / "assets/fonts/PxPlus_IBM_VGA_8x16.ttf"
 
 
 def test_dev_mode_forces_windowed_and_local_logs():

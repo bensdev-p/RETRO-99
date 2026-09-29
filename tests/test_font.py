@@ -123,3 +123,14 @@ def test_fallback_font_has_real_box_drawing():
     from retro99.render.boxchars import box_glyph
 
     assert fallback_font().rows("╔") == box_glyph("╔")
+
+
+def test_bundled_vga_font_is_pixel_exact_8x16():
+    from retro99.config import DEFAULT_FONTS, resolve_path
+
+    font = load_font([resolve_path(DEFAULT_FONTS[0])])
+    assert font.name == "PxPlus_IBM_VGA_8x16.ttf"
+    assert (font.width, font.height) == (8, 16)
+    assert font.missing(CP437) == []
+    # Double-line corner straight from the VGA ROM.
+    assert font.rows("╔")[5:8] == (0b00111111, 0b00110000, 0b00110111)

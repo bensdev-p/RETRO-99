@@ -17,8 +17,10 @@ from typing import Any
 PROJECT_ROOT = Path(__file__).resolve().parent.parent
 
 DEFAULT_FONTS = [
+    # Oldschool PC Font Pack (CC BY-SA 4.0), bundled in the repo.
+    "assets/fonts/PxPlus_IBM_VGA_8x16.ttf",
     "assets/fonts/Px437_IBM_VGA_8x16.ttf",
-    # Debian/Raspberry Pi OS package `console-data`: the genuine VGA ROM font.
+    # Debian/Raspberry Pi OS package `console-data`: a VGA font with full CP437.
     "/usr/share/consolefonts/default8x16.psf.gz",
     # Installed by default on Raspberry Pi OS; lacks a few CP437 glyphs.
     "/usr/share/consolefonts/Uni2-VGA16.psf.gz",

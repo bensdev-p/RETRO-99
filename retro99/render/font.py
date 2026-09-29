@@ -4,7 +4,7 @@ Glyphs are stored as rows of bits (bit ``width - 1`` is the leftmost pixel), so
 parsing and lookup are pure logic that never touches a display. Three sources
 are supported, tried in the order given by ``config.toml``:
 
-* a TrueType bitmap font such as Px437 IBM VGA 8x16 (rasterized once at load),
+* a TrueType bitmap font such as PxPlus/Px437 IBM VGA 8x16 (rasterized once at load),
 * a Linux console PSF font (PSF1/PSF2, optionally gzipped), e.g. the
   ``Uni2-VGA16.psf.gz`` that ships with Raspberry Pi OS,
 * a last-resort fallback built from pygame's default font so the app still
@@ -190,7 +190,7 @@ def _build(
 
 
 def rasterize_ttf(path: Path, size: int = 16, chars: str = CP437) -> BitmapFont:
-    """Rasterize a TrueType bitmap-style font (e.g. Px437) into a BitmapFont."""
+    """Rasterize a TrueType bitmap-style font (e.g. PxPlus/Px437) into a BitmapFont."""
     import pygame
 
     if not pygame.font.get_init():

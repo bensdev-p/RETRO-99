@@ -15,6 +15,7 @@ data_root = "/srv/retro99"
 log_dir = "/var/log/retro99"   # dev mode always uses ./logs
 # Tried in order; the first one that loads wins.
 fonts = [
+  "assets/fonts/PxPlus_IBM_VGA_8x16.ttf",          # bundled
   "assets/fonts/Px437_IBM_VGA_8x16.ttf",
   "/usr/share/consolefonts/default8x16.psf.gz",   # apt install console-data
   "/usr/share/consolefonts/Uni2-VGA16.psf.gz",    # Raspberry Pi OS default

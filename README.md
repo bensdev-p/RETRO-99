@@ -17,7 +17,8 @@ RETRO99_DEV=1 .venv/bin/python -m retro99      # or: python -m retro99 --windowe
 .venv/bin/ruff check . && .venv/bin/ruff format --check .
 ```
 
-To use the proper VGA font, see [assets/fonts/README.md](assets/fonts/README.md).
+The VGA font (PxPlus IBM VGA 8x16, CC BY-SA 4.0) is bundled; see
+[assets/fonts/README.md](assets/fonts/README.md) for attribution and fallbacks.
 
 Useful flags: `--scale N` (window scale), `--crt` (scanlines), `--headless --frames N`
 (render with SDL's dummy driver and exit), `--config PATH`, `-v`.
